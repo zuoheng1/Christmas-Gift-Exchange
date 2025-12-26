@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 圣诞礼物交换 🎅</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #c94b4b 0%, #4b134f 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size:24px'><text y='20'>🎄</text></svg>"), auto;
+        }
+
+        a, button, .gift-box, .refresh-next-btn {
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size:24px'><text y='20'>🎄</text></svg>"), pointer !important;
+        }
+
+        /* 雪花背景 */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 1;
+            color: #fff;
+            font-size: 1em;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .first-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.8s ease;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 48px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.95);
+            font-size: 18px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .christmas-decoration {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 15px;
+            animation: pulse 2s ease infinite;
+            flex-shrink: 0;
+        }
+
+        .main-stage {
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: fadeInUp 0.8s ease;
+            border: 5px solid #c94b4b;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        #stage-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stage-title {
+            font-size: 28px;
+            color: #c94b4b;
+            margin-bottom: 25px;
+            font-weight: 800; /* 加粗 */
+            text-align: center;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 添加阴影更醒目 */
+        }
+
+        .highlight-name {
+            color: #ffd700;
+            background: #c94b4b;
+            padding: 2px 10px;
+            border-radius: 8px;
+            margin: 0 5px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(201, 75, 75, 0.3);
+        }
+
+        .gift-box {
+            width: 320px; /* 增加宽度以容纳长 Emoji */
+            height: 340px;
+            background: linear-gradient(135deg, #c94b4b 0%, #ff6b6b 100%);
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(201, 75, 75, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #fff;
+            cursor: pointer;
+        }
+
+        .gift-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(201, 75, 75, 0.7);
+        }
+
+        .gift-box:active {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        /* 连接区域（箭头/刷新按钮） */
+        .connector-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px; /* 稍微收窄一点 */
+            height: 340px;
+            gap: 15px;
+        }
+
+        .refresh-next-btn {
+            background: none; /* 移除背景 */
+            border: none;
+            color: #ffd700; /* 使用金色，更简约 */
+            font-size: 36px; /* 调大图标尺寸 */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            padding: 0;
+            opacity: 0.8;
+        }
+
+        .refresh-next-btn:hover {
+            transform: scale(1.2) rotate(180deg);
+            opacity: 1;
+            color: #fff;
+        }
+
+        .refresh-next-btn:active {
+            transform: scale(0.9);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .gift-box.drawing {
+            animation: shake 0.5s ease infinite;
+            cursor: wait;
+        }
+
+        .gift-box.disabled {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .gift-box.disabled.dimmed {
+            opacity: 0.6;
+        }
+
+        .gift-box.active {
+            animation: pulse-glow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 15px 35px rgba(201, 75, 75, 0.5);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 20px 50px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+            }
+        }
+
+        .box-ribbon {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 100%;
+            background:#38ab5f;
+            z-index: 1;
+        }
+
+        .box-bow {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 60px;
+            z-index: 2;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+            transition: transform 0.6s ease;
+        }
+
+
+        .box-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 110px;
+            padding: 20px 15px;
+            width: 92%;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .box-emoji {
+            font-size: 70px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+            margin-bottom: 10px;
+            margin-top: -65px;
+            white-space: nowrap; /* 保持不换行 */
+            display: block;
+            text-align: center;
+        }
+
+        .box-title {
+            font-size: 24px;
+            color: #1a1a1a; /* 更深的颜色以提高对比度 */
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-align: center;
+            padding: 0 10px;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .box-desc {
+            font-size: 15px;
+            color: #333; /* 加深描述文字颜色 */
+            text-align: center;
+            padding: 0 10px;
+            line-height: 1.4;
+            font-weight: 600;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-display {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .person-card {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            min-width: 240px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #c94b4b;
+        }
+
+        .person-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+            white-space: nowrap;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .person-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a; /* 加深颜色 */
+            margin-bottom: 12px;
+            line-height: 1.3;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .person-desc {
+            font-size: 15px;
+            color: #333; /* 加深颜色 */
+            line-height: 1.4;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .arrow {
+            font-size: 45px;
+            color: #38ab5f; /* 改为更醒目的金色 */
+            animation: pulse 1.5s ease infinite;
+            filter: drop-shadow(0 3px 10px rgba(0,0,0,0.1));
+        }
+
+        .second-screen {
+            min-height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history {
+            background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+            border-radius: 20px;
+            padding: 35px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+            border: 4px solid #c94b4b;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .history-title {
+            font-size: 28px;
+            color: #c94b4b;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .history-item {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            border: 2px solid #c94b4b;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .history-person {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .history-emoji {
+            font-size: 45px;
+            white-space: nowrap;
+            display: block;
+            text-align: center;
+        }
+
+        .history-title-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a; /* 加深颜色 */
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-desc-text {
+            font-size: 14px;
+            color: #333; /* 加深颜色 */
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reset-button {
+            background: linear-gradient(135deg, #c94b4b 0%, #4b134f 100%);
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            padding: 18px 50px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(201, 75, 75, 0.5);
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            border: 3px solid #fff;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(201, 75, 75, 0.7);
+        }
+
+        .next-button {
+            display: none;
+        }
+
+        .button-area {
+            display: none;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            75% { transform: translateX(8px) rotate(3deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            z-index: 1000;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .first-screen {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+
+            .christmas-decoration {
+                font-size: 28px;
+            }
+
+            .main-stage {
+                padding: 25px 15px;
+            }
+
+            .stage-title {
+                font-size: 24px;
+            }
+
+            .result-display {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+
+            .connector-area {
+                width: 100%;
+                height: auto;
+                min-height: 60px;
+                flex-direction: row;
+                gap: 20px;
+                margin: 10px 0;
+            }
+
+            .refresh-next-btn {
+                font-size: 32px;
+            }
+
+            .gift-box {
+                width: 280px;
+                height: 320px;
+            }
+
+            .box-content {
+                width: 90%;
+                margin-top: 100px;
+            }
+
+            .box-emoji {
+                font-size: 60px;
+                margin-top: -55px;
+            }
+
+            .box-title {
+                font-size: 22px;
+            }
+
+            .box-desc {
+                font-size: 14px;
+            }
+
+            .next-button {
+                font-size: 20px;
+                padding: 18px 50px;
+            }
+
+            .second-screen {
+                padding: 30px 15px;
+            }
+
+            .history {
+                padding: 25px 20px;
+            }
+
+            .history-title {
+                font-size: 24px;
+            }
+
+            .history-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .history-emoji {
+                font-size: 35px;
+            }
+
+            .history-title-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 第一屏：抽奖区域 -->
+        <div class="first-screen">
+            <div class="christmas-decoration">🎄 ⛄ 🎅 🤶 🎁 ⭐ 🔔 🦌 🎄</div>
+
+            <div class="header">
+                <h1>🎄圣诞礼物交换 🎅</h1>
+                <p>让Assemble 16s
+            一起开启充满惊喜的圣诞礼物交换之旅吧！</p>
+            </div>
+
+            <div class="main-stage">
+                <div id="stage-content"></div>
+            </div>
+        </div>
+
+        <!-- 第二屏：交换记录 -->
+        <div class="second-screen" id="history-section" style="display: none;">
+            <div class="history">
+                <div class="history-title">🎯 圣诞礼物交换记录</div>
+                <div id="history-list"></div>
+                <center><button class="reset-button" onclick="resetGame()">🔄 重新开始</button></center>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const participants = [
+            { emoji: '🐦🐦‍⬛🪹🍳', title: 'ANZ 埋雷第一人', desc: 'Ops阶段查无此人' },
+            { emoji: '小👑', title: 'ANZ 桌面玩具第一制造商', desc: '"我是Ops小皇帝"' },
+            { emoji: '👑', title: 'ANZ 帝王之相拥有者', desc: '"鹅鹅鹅鹅鹅鹅鹅鹅鹅"' },
+            { emoji: '⬅️', title: 'ANZ 伸出圆手第一人', desc: '合电脑，揣小手，点头嗯嗯没问题' },
+            { emoji: '💪👧', title: 'ANZ 第一金刚芭比', desc: '"酒精是让我快乐的东西"' },
+            { emoji: '💃', title: 'ANZ 直面冲突第一人', desc: '"叼死你"' },
+            { emoji: '☝️', title: 'ANZ 翘臀第一人', desc: '"嗯？"' },
+            { emoji: '🖌️➕🥤', title: 'ANZ 奶茶天后', desc: '"哇塞哇塞"' },
+            { emoji: '🎱👑', title: 'ANZ 台球第一人', desc: '"🖕"' },
+            { emoji: '👴', title: 'ANZ 与领导冲突第一人', desc: '"擦"' },
+            { emoji: '✋', title: 'ANZ 第一T', desc: '"打死你"' },
+            { emoji: '🥴', title: 'ANZ 微醺上班第一人', desc: '毕业快乐' }
+        ];
+
+        let gameState = {
+            phase: 'draw-giver', // draw-giver, draw-receiver, show-result, complete
+            currentGiver: null,
+            currentReceiver: null,
+            currentIndex: 0,
+            pairings: [], // 预先生成的完美配对
+            history: [],
+            isDrawing: false
+        };
+
+        // 生成完美的礼物交换配对（错排算法）
+        function generatePerfectPairings() {
+            const n = participants.length;
+            let givers = [...participants];
+            let receivers = [...participants];
+
+            // 随机打乱送礼者顺序
+            for (let i = givers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [givers[i], givers[j]] = [givers[j], givers[i]];
+            }
+
+            // 随机打乱接收者顺序
+            for (let i = receivers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [receivers[i], receivers[j]] = [receivers[j], receivers[i]];
+            }
+
+            // 确保没有人收到自己的礼物
+            for (let i = 0; i < n; i++) {
+                if (givers[i].emoji === receivers[i].emoji) {
+                    // 找到一个可以交换的位置
+                    let swapIndex = (i + 1) % n;
+                    // 确保交换后两个位置都不会收到自己的礼物
+                    while (swapIndex === i ||
+                           givers[i].emoji === receivers[swapIndex].emoji ||
+                           givers[swapIndex].emoji === receivers[i].emoji) {
+                        swapIndex = (swapIndex + 1) % n;
+                        // 如果遍历一圈都找不到，说明当前配对有问题，重新生成
+                        if (swapIndex === (i + 1) % n) {
+                            return generatePerfectPairings(); // 递归重新生成
+                        }
+                    }
+                    [receivers[i], receivers[swapIndex]] = [receivers[swapIndex], receivers[i]];
+                }
+            }
+
+            // 生成配对数组
+            const pairings = [];
+            for (let i = 0; i < n; i++) {
+                pairings.push({
+                    giver: givers[i],
+                    receiver: receivers[i]
+                });
+            }
+
+            return pairings;
+        }
+
+        // 初始化游戏
+        function initGame() {
+            gameState = {
+                phase: 'draw-giver',
+                currentGiver: null,
+                currentReceiver: null,
+                currentIndex: 0,
+                pairings: generatePerfectPairings(),
+                history: [],
+                isDrawing: false
+            };
+            console.log('生成的配对关系：', gameState.pairings);
+        }
+
+        // 创建雪花效果
+        function createSnowflakes() {
+            const snowflakes = ['❄', '❅', '❆'];
+            setInterval(() => {
+                if (document.querySelectorAll('.snowflake').length < 50) {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                    snowflake.style.left = Math.random() * 100 + '%';
+                    snowflake.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                    snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+                    snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                    document.body.appendChild(snowflake);
+                    setTimeout(() => snowflake.remove(), 8000);
+                }
+            }, 300);
+        }
+
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffd700', '#ff8c00', '#c94b4b'];
+            const shapes = ['🎄', '🎅', '🎁', '⭐', '🔔', '❄'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+
+                    if (Math.random() > 0.5) {
+                        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    } else {
+                        confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+                        confetti.style.fontSize = '20px';
+                        confetti.style.background = 'transparent';
+                    }
+
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        function renderStage() {
+            const stageContent = document.getElementById('stage-content');
+
+            if (gameState.phase === 'draw-giver') {
+                // 第一阶段：抽取送礼者
+                stageContent.innerHTML = `
+                    <div class="stage-title">🎲 抽取送礼物的人，然后抽取礼物接收者</div>
+                    <div class="result-display">
+                        <div class="gift-box active" id="giver-box" onclick="startDrawGiver()">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">🎁</div>
+                                <div class="box-title">送礼者</div>
+                                <div class="box-desc">点击抽取送礼物的人</div>
+                            </div>
+                        </div>
+                        <div class="connector-area">
+                            <div class="arrow">🎁→</div>
+                        </div>
+                        <div class="gift-box disabled dimmed" id="receiver-box">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">🎁</div>
+                                <div class="box-title">接收者</div>
+                                <div class="box-desc">等待抽取</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (gameState.phase === 'draw-receiver') {
+                // 第二阶段：抽取接收者
+                stageContent.innerHTML = `
+                    <div class="stage-title">🎁 <span class="highlight-name">${gameState.currentGiver.title}</span> 送礼物给谁呢？</div>
+                    <div class="result-display">
+                        <div class="gift-box disabled" id="giver-box">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">${gameState.currentGiver.emoji}</div>
+                                <div class="box-title">${gameState.currentGiver.title}</div>
+                                <div class="box-desc">${gameState.currentGiver.desc}</div>
+                            </div>
+                        </div>
+                        <div class="connector-area">
+                            <div class="arrow">🎁→</div>
+                        </div>
+                        <div class="gift-box active" id="receiver-box" onclick="startDrawReceiver()">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">🎁</div>
+                                <div class="box-title">接收者</div>
+                                <div class="box-desc">点击抽取接收者</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (gameState.phase === 'show-result') {
+                // 第三阶段：显示结果
+                stageContent.innerHTML = `
+                    <div class="stage-title">🎉 <span class="highlight-name">${gameState.currentGiver.title}</span> 把礼物送给 <span class="highlight-name">${gameState.currentReceiver.title}</span></div>
+                    <div class="result-display">
+                        <div class="gift-box disabled" id="giver-box">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">${gameState.currentGiver.emoji}</div>
+                                <div class="box-title">${gameState.currentGiver.title}</div>
+                                <div class="box-desc">${gameState.currentGiver.desc}</div>
+                            </div>
+                        </div>
+                        <div class="connector-area">
+                            <div class="arrow">🎁→</div>
+                            <button class="refresh-next-btn" onclick="nextRound()" title="开始下一轮">🔄</button>
+                        </div>
+                        <div class="gift-box disabled" id="receiver-box">
+                            <div class="box-ribbon"></div>
+                            <div class="box-bow">🎀</div>
+                            <div class="box-content">
+                                <div class="box-emoji">${gameState.currentReceiver.emoji}</div>
+                                <div class="box-title">${gameState.currentReceiver.title}</div>
+                                <div class="box-desc">${gameState.currentReceiver.desc}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateHistory();
+        }
+
+        function startDrawGiver() {
+            if (gameState.isDrawing || gameState.currentIndex >= gameState.pairings.length) return;
+            gameState.isDrawing = true;
+
+            const box = document.getElementById('giver-box');
+            box.classList.remove('active');
+            box.classList.add('drawing');
+            box.classList.add('disabled');
+
+            // 从预先生成的配对中获取当前送礼者
+            const currentPairing = gameState.pairings[gameState.currentIndex];
+            const selectedGiver = currentPairing.giver;
+
+            // 生成随机显示的候选人列表（所有参与者）
+            const allParticipants = [...participants];
+
+            let count = 0;
+            const maxCount = 25;
+            const interval = setInterval(() => {
+                // 在动画过程中随机显示所有参与者
+                const randomPerson = allParticipants[Math.floor(Math.random() * allParticipants.length)];
+                box.querySelector('.box-emoji').textContent = randomPerson.emoji;
+                box.querySelector('.box-title').textContent = randomPerson.title;
+                box.querySelector('.box-desc').textContent = randomPerson.desc;
+                count++;
+
+                if (count >= maxCount) {
+                    clearInterval(interval);
+
+                    // 显示最终选中的人（来自预先生成的配对）
+                    box.querySelector('.box-emoji').textContent = selectedGiver.emoji;
+                    box.querySelector('.box-title').textContent = selectedGiver.title;
+                    box.querySelector('.box-desc').textContent = selectedGiver.desc;
+
+                    box.classList.remove('drawing');
+
+                    setTimeout(() => {
+                        gameState.currentGiver = selectedGiver;
+
+                        createConfetti();
+                        gameState.phase = 'draw-receiver';
+                        gameState.isDrawing = false;
+                        renderStage();
+                    }, 600);
+                }
+            }, 100);
+        }
+
+        function startDrawReceiver() {
+            if (gameState.isDrawing || gameState.currentIndex >= gameState.pairings.length) return;
+            gameState.isDrawing = true;
+
+            const box = document.getElementById('receiver-box');
+            if (!box) {
+                console.error('receiver-box not found');
+                return;
+            }
+
+            box.classList.remove('active');
+            box.classList.add('drawing');
+            box.classList.add('disabled');
+
+            // 从预先生成的配对中获取当前接收者
+            const currentPairing = gameState.pairings[gameState.currentIndex];
+            const selectedReceiver = currentPairing.receiver;
+
+            // 生成随机显示的候选人列表（所有参与者）
+            const allParticipants = [...participants];
+
+            // 获取接收者卡片内的元素
+            const receiverEmoji = box.querySelector('.box-emoji');
+            const receiverTitle = box.querySelector('.box-title');
+            const receiverDesc = box.querySelector('.box-desc');
+
+            let count = 0;
+            const maxCount = 25;
+            const interval = setInterval(() => {
+                // 在动画过程中随机显示所有参与者
+                const randomPerson = allParticipants[Math.floor(Math.random() * allParticipants.length)];
+                receiverEmoji.textContent = randomPerson.emoji;
+                receiverTitle.textContent = randomPerson.title;
+                receiverDesc.textContent = randomPerson.desc;
+                count++;
+
+                if (count >= maxCount) {
+                    clearInterval(interval);
+
+                    // 显示最终选中的人（来自预先生成的配对）
+                    receiverEmoji.textContent = selectedReceiver.emoji;
+                    receiverTitle.textContent = selectedReceiver.title;
+                    receiverDesc.textContent = selectedReceiver.desc;
+
+                    box.classList.remove('drawing');
+
+                    setTimeout(() => {
+                        gameState.currentReceiver = selectedReceiver;
+                        gameState.history.push({
+                            giver: gameState.currentGiver,
+                            receiver: selectedReceiver
+                        });
+
+                        createConfetti();
+
+                        // 进入结果展示阶段
+                        gameState.phase = 'show-result';
+                        gameState.isDrawing = false;
+                        renderStage();
+                    }, 600);
+                }
+            }, 100);
+        }
+
+        function nextRound() {
+            // 移动到下一个配对
+            gameState.currentIndex++;
+
+            // 检查是否所有人都完成了抽取
+            if (gameState.currentIndex >= gameState.pairings.length) {
+                gameState.phase = 'complete';
+                showComplete();
+            } else {
+                // 继续抽取下一个送礼者
+                gameState.phase = 'draw-giver';
+                gameState.currentGiver = null;
+                gameState.currentReceiver = null;
+                renderStage();
+            }
+        }
+
+        function showComplete() {
+            const stageContent = document.getElementById('stage-content');
+            stageContent.innerHTML = `
+                <div class="stage-title">🎉 所有人都完成抽取啦！</div>
+                <div style="font-size: 100px; margin: 40px 0;">🎄🎅🎁</div>
+                <div style="font-size: 26px; color: #c94b4b; font-weight: 700; text-align: center; line-height: 1.6;">
+                    Merry Christmas！<br>
+                    快看看下方的完整记录，准备你的礼物吧！
+                </div>
+            `;
+            createConfetti();
+        }
+
+        function updateHistory() {
+            const historySection = document.getElementById('history-section');
+            const historyList = document.getElementById('history-list');
+
+            if (gameState.history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+
+            historySection.style.display = 'flex';
+            historyList.innerHTML = gameState.history.map((item, index) => `
+                <div class="history-item">
+                    <div class="history-person">
+                        <div class="history-emoji">${item.giver.emoji}</div>
+                        <div class="history-title-text">${item.giver.title}</div>
+                        <div class="history-desc-text">${item.giver.desc}</div>
+                    </div>
+                    <div class="arrow">🎁→</div>
+                    <div class="history-person">
+                        <div class="history-emoji">${item.receiver.emoji}</div>
+                        <div class="history-title-text">${item.receiver.title}</div>
+                        <div class="history-desc-text">${item.receiver.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function resetGame() {
+            initGame();
+            renderStage();
+        }
+
+        // 初始化
+        initGame();
+        createSnowflakes();
+        renderStage();
+    </script>
+</body>
+</html>
