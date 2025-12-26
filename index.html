@@ -194,26 +194,34 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 80px; /* 稍微收窄一点 */
+            width: 80px;
             height: 340px;
-            gap: 15px;
-            text-align: center;
+            gap: 20px;
         }
 
         .refresh-next-btn {
-            background: none; /* 移除背景 */
+            background: none;
             border: none;
-            color: #ffd700; /* 使用金色，更简约 */
-            font-size: 36px; /* 调大图标尺寸 */
+            color: #ffd700;
+            font-size: 36px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 10;
             padding: 0;
             opacity: 0.8;
+        }
+
+        .refresh-next-btn.v-hidden {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .refresh-next-btn:not(.v-hidden) {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .refresh-next-btn:hover {
@@ -859,6 +867,7 @@
                         </div>
                         <div class="connector-area">
                             <div class="arrow">🎁→</div>
+                            <button class="refresh-next-btn v-hidden" onclick="nextRound()" title="开始下一轮">🔄</button>
                         </div>
                         <div class="gift-box disabled dimmed" id="receiver-box">
                             <div class="box-ribbon"></div>
@@ -887,6 +896,7 @@
                         </div>
                         <div class="connector-area">
                             <div class="arrow">🎁→</div>
+                            <button class="refresh-next-btn v-hidden" onclick="nextRound()" title="开始下一轮">🔄</button>
                         </div>
                         <div class="gift-box active" id="receiver-box" onclick="startDrawReceiver()">
                             <div class="box-ribbon"></div>
