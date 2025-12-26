@@ -11,6 +11,39 @@
             box-sizing: border-box;
         }
 
+        /* 音频控制按钮 */
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .audio-control:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .audio-control.playing {
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         body {
             font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #c94b4b 0%, #4b134f 100%);
@@ -612,6 +645,18 @@
     </style>
 </head>
 <body>
+    <!-- 背景音乐和音效 -->
+    <audio id="bgm" loop>
+        <source src="https://www.chosic.com/wp-content/uploads/2021/11/Jingle-Bells-Country.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sfx">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="audio-control" id="music-toggle" onclick="toggleMusic()" title="背景音乐">
+        🎵
+    </div>
+
     <div class="container">
         <!-- 第一屏：抽奖区域 -->
         <div class="first-screen">
@@ -711,6 +756,29 @@
             }
 
             return pairings;
+        }
+
+        let isMusicPlaying = false;
+        const bgm = document.getElementById('bgm');
+        const clickSfx = document.getElementById('click-sfx');
+
+        function toggleMusic() {
+            const btn = document.getElementById('music-toggle');
+            if (isMusicPlaying) {
+                bgm.pause();
+                btn.classList.remove('playing');
+                btn.textContent = '🔇';
+            } else {
+                bgm.play().catch(e => console.log("播放失败:", e));
+                btn.classList.add('playing');
+                btn.textContent = '🎵';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        function playClickSfx() {
+            clickSfx.currentTime = 0;
+            clickSfx.play().catch(e => console.log("音效播放失败:", e));
         }
 
         // 初始化游戏
@@ -865,6 +933,7 @@
 
         function startDrawGiver() {
             if (gameState.isDrawing || gameState.currentIndex >= gameState.pairings.length) return;
+            playClickSfx();
             gameState.isDrawing = true;
 
             const box = document.getElementById('giver-box');
@@ -913,6 +982,7 @@
 
         function startDrawReceiver() {
             if (gameState.isDrawing || gameState.currentIndex >= gameState.pairings.length) return;
+            playClickSfx();
             gameState.isDrawing = true;
 
             const box = document.getElementById('receiver-box');
@@ -976,6 +1046,7 @@
         }
 
         function nextRound() {
+            playClickSfx();
             // 移动到下一个配对
             gameState.currentIndex++;
 
@@ -1036,6 +1107,14 @@
             initGame();
             renderStage();
         }
+
+        // 首次交互自动播放背景音乐
+        document.addEventListener('click', function startMusicOnFirstClick() {
+            if (!isMusicPlaying) {
+                toggleMusic();
+            }
+            document.removeEventListener('click', startMusicOnFirstClick);
+        }, { once: true });
 
         // 初始化
         initGame();
